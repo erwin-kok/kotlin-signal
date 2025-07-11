@@ -1,0 +1,49 @@
+[versions]
+detekt = "1.23.8"
+junit-jupiter = "5.13.3"
+junit-platform-launcher = "1.13.3"
+kotlin = "2.2.0"
+kotlinx-coroutines = "1.10.2"
+kotlinx-datetime = "0.7.1"
+kover = "0.9.1"
+ktlint = "13.0.0-rc.1"
+lettuce = "6.7.1.RELEASE"
+logback-classic = "1.5.18"
+mockk = "1.14.4"
+nexus = "2.0.0"
+oshai = "7.0.6"
+protobuf-gradle-plugin = "0.9.5"
+shadow = "8.1.1"
+slf4j-api = "2.0.11"
+testlogger-plugin = "3.2.0"
+versions = "0.52.0"
+
+[libraries]
+io-mockk-mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
+junit-jupiter-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junit-jupiter" }
+junit-jupiter-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junit-jupiter" }
+junit-jupiter-params = { module = "org.junit.jupiter:junit-jupiter-params", version.ref = "junit-jupiter" }
+junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher", version.ref = "junit-platform-launcher" }
+kotlinx-coroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }
+kotlinx-coroutines-debug = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-debug", version.ref = "kotlinx-coroutines" }
+kotlinx-coroutines-reactor = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-reactor", version.ref = "kotlinx-coroutines" }
+kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinx-coroutines" }
+kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinx-datetime" }
+lettuce = { module = "io.lettuce:lettuce-core", version.ref = "lettuce" }
+logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "logback-classic" }
+oshai-logging = { module = "io.github.oshai:kotlin-logging", version.ref = "oshai" }
+slf4j-api = { module = "org.slf4j:slf4j-api", version.ref = "slf4j-api" }
+
+buildscript-detekt = { module = "io.gitlab.arturbosch.detekt:detekt-gradle-plugin", version.ref = "detekt" }
+buildscript-kover = { module = "org.jetbrains.kotlinx:kover-gradle-plugin", version.ref = "kover" }
+buildscript-kotlin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
+buildscript-kotlin-serialization = { module = "org.jetbrains.kotlin:kotlin-serialization", version.ref = "kotlin" }
+buildscript-ktlint = { module = "org.jlleitschuh.gradle:ktlint-gradle", version.ref = "ktlint" }
+buildscript-protobuf = { module = "com.google.protobuf:protobuf-gradle-plugin", version.ref = "protobuf-gradle-plugin" }
+buildscript-testlogger = { module = "com.adarshr:gradle-test-logger-plugin", version.ref = "testlogger-plugin" }
+
+[plugins]
+ktlint = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "ktlint" }
+nexus = { id = "io.github.gradle-nexus.publish-plugin", version.ref = "nexus" }
+shadow = { id = "com.github.johnrengelman.shadow", version.ref = "shadow" }
+versions = { id = "com.github.ben-manes.versions", version.ref = "versions" }

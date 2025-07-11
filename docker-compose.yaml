@@ -1,0 +1,56 @@
+version: '3.8'
+services:
+  redis1:
+    image: "redis:latest"
+    restart: always
+    network_mode: "host"
+    ports:
+      - "8011:8011"
+    command: >
+      --include /usr/local/etc/redis/redis.conf
+    volumes:
+      - ./config/redis1.conf:/usr/local/etc/redis/redis.conf
+
+  redis2:
+    image: "redis:latest"
+    restart: always
+    network_mode: "host"
+    ports:
+      - "8012:8012"
+    command: >
+      --include /usr/local/etc/redis/redis.conf
+    volumes:
+      - ./config/redis2.conf:/usr/local/etc/redis/redis.conf
+
+  redis3:
+    image: "redis:latest"
+    restart: always
+    network_mode: "host"
+    ports:
+      - "8013:8013"
+    command: >
+      --include /usr/local/etc/redis/redis.conf
+    volumes:
+      - ./config/redis3.conf:/usr/local/etc/redis/redis.conf
+
+  redis4:
+    image: "redis:latest"
+    restart: always
+    network_mode: "host"
+    ports:
+      - "8014:8014"
+    command: >
+      --include /usr/local/etc/redis/redis.conf
+    volumes:
+      - ./config/redis4.conf:/usr/local/etc/redis/redis.conf
+
+  redis5:
+    image: "redis:latest"
+    restart: always
+    network_mode: "host"
+    ports:
+      - "8015:8015"
+    command: >
+      --include /usr/local/etc/redis/redis.conf
+    volumes:
+      - ./config/redis5.conf:/usr/local/etc/redis/redis.conf
