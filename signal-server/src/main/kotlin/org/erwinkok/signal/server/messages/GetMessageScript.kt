@@ -1,6 +1,6 @@
 @file:OptIn(ExperimentalLettuceCoroutinesApi::class)
 
-package org.erwinkok.signal.server.redis
+package org.erwinkok.signal.server.messages
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.lettuce.core.ExperimentalLettuceCoroutinesApi
@@ -11,10 +11,10 @@ import org.erwinkok.entities.MessageProtos
 
 private val logger = KotlinLogging.logger {}
 
-class GetMessagesScript(
+class GetMessageScript(
     private val redisConnection: StatefulRedisClusterConnection<ByteArray, ByteArray>,
 ) {
-    private val classLoader = GetMessagesScript::class.java.classLoader
+    private val classLoader = GetMessageScript::class.java.classLoader
     private val sha1: String
 
     init {
@@ -26,6 +26,7 @@ class GetMessagesScript(
     suspend fun execute(destination: Destination, limit: Int, afterMessageId: Long): Pair<List<MessageProtos.Message>, Long> {
         val keys = listOf(
             destination.messageQueueKey,
+            destination.persistInProgressKey,
         )
         val args = listOf(
             limit.toString().toByteArray(Charsets.UTF_8),

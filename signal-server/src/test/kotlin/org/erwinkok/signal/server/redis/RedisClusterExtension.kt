@@ -1,8 +1,10 @@
 package org.erwinkok.signal.server.redis
 
+import io.github.oshai.kotlinlogging.KotlinLogging
 import io.lettuce.core.RedisClient
 import io.lettuce.core.RedisURI
 import io.lettuce.core.cluster.SlotHash
+import io.lettuce.core.resource.ClientResources
 import org.junit.jupiter.api.extension.AfterAllCallback
 import org.junit.jupiter.api.extension.AfterEachCallback
 import org.junit.jupiter.api.extension.BeforeAllCallback
@@ -13,10 +15,14 @@ import redis.embedded.RedisServer
 import java.io.File
 import java.net.ServerSocket
 
+private val logger = KotlinLogging.logger {}
+
 class RedisClusterExtension(
     val clusterSize: Int = 3,
 ) : Extension, BeforeAllCallback, BeforeEachCallback, AfterAllCallback, AfterEachCallback {
     private val nodes = mutableListOf<RedisServer>()
+    private var redisClientResources: ClientResources? = null
+    var clusterClient: ClusterClient? = null
 
     override fun beforeAll(context: ExtensionContext) {
         repeat(clusterSize) {
@@ -29,10 +35,34 @@ class RedisClusterExtension(
         nodes.forEach { it.stop() }
     }
 
-    override fun afterEach(context: ExtensionContext) {
+    override fun beforeEach(context: ExtensionContext) {
+        redisClientResources = ClientResources.builder().build()
+        val client = ClusterClient(redisURIs())
+        client.connect("warmup").use { connection ->
+            val keys = nodes.indices.map { i ->
+                RedisClusterUtil.getMinimalHashTag(i * SlotHash.SLOT_COUNT / nodes.size)
+            }
+            var setAll = false
+            while (!setAll) {
+                try {
+                    for (key in keys) {
+                        connection.executeSync {
+                            it.sync().set(key, "warmup")
+                        }
+                    }
+                    setAll = true
+                } catch (_: Exception) {
+                    logger.info { "Waiting for cluster to warm up..." }
+                    Thread.sleep(500)
+                }
+            }
+        }
+        clusterClient = client
     }
 
-    override fun beforeEach(context: ExtensionContext) {
+    override fun afterEach(context: ExtensionContext) {
+        clusterClient?.shutdown()
+        redisClientResources?.shutdown()?.get()
     }
 
     fun redisURIs(): List<RedisURI> {

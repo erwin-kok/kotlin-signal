@@ -1,6 +1,6 @@
 @file:OptIn(ExperimentalLettuceCoroutinesApi::class)
 
-package org.erwinkok.signal.server.redis
+package org.erwinkok.signal.server.messages
 
 import io.lettuce.core.ExperimentalLettuceCoroutinesApi
 import io.lettuce.core.ScriptOutputType
@@ -20,7 +20,7 @@ class InsertMessageScript(
         sha1 = redisConnection.sync().scriptLoad(script)
     }
 
-    suspend fun execute(destination: Destination, message: MessageProtos.Message): Boolean? {
+    suspend fun execute(destination: Destination, message: MessageProtos.Message): Boolean {
         val keys = listOf(
             destination.messageQueueKey,
             destination.messageQueueMetadataKey,
@@ -36,6 +36,6 @@ class InsertMessageScript(
             ScriptOutputType.BOOLEAN,
             keys.toTypedArray(),
             *args.toTypedArray(),
-        )
+        ) ?: false
     }
 }

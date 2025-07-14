@@ -1,6 +1,7 @@
-package org.erwinkok.signal.server.redis
+package org.erwinkok.signal.server.messages
 
 import io.lettuce.core.cluster.SlotHash
+import org.erwinkok.signal.server.redis.RedisClusterUtil
 import java.util.UUID
 
 data class Destination(
@@ -9,6 +10,8 @@ data class Destination(
 ) {
     val messageQueueKey = "message_queue::{$uuid::$deviceId}".toByteArray(Charsets.UTF_8)
     val messageQueueMetadataKey = "message_queue_metadata::{$uuid::$deviceId}".toByteArray(Charsets.UTF_8)
+    val persistInProgressKey = "message_queue_persisting::{$uuid::$deviceId}".toByteArray(Charsets.UTF_8)
+
     val queueIndexKey: ByteArray
         get() = queueIndexKey(SlotHash.getSlot("$uuid::$deviceId"))
 
