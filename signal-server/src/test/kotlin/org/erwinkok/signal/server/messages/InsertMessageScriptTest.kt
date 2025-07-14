@@ -26,9 +26,9 @@ class InsertMessageScriptTest {
 
         val clusterClient = REDIS_CLUSTER_EXTENSION.clusterClient!!
         clusterClient.connect("test", ByteArrayCodec.INSTANCE).use { connection ->
-            connection.execute {
-                val insertScript = InsertMessageScript(it)
-                val getScript = GetMessageScript(it)
+            connection.withConnection {
+                val insertScript = InsertMessageScript.load(it)
+                val getScript = GetMessageScript.load(it)
 
                 val message1 = message {
                     this.serverTimestamp = Instant.now().epochSecond

@@ -8,18 +8,10 @@ import io.lettuce.core.cluster.api.StatefulRedisClusterConnection
 import io.lettuce.core.cluster.api.coroutines
 import org.erwinkok.entities.MessageProtos
 
-class InsertMessageScript(
+class InsertMessageScript private constructor(
     private val redisConnection: StatefulRedisClusterConnection<ByteArray, ByteArray>,
+    private val sha1: String,
 ) {
-    private val classLoader = InsertMessageScript::class.java.classLoader
-    private val sha1: String
-
-    init {
-        val script = String(requireNotNull(classLoader.getResourceAsStream("lua/insert_message.lua")).readAllBytes(), Charsets.UTF_8)
-        requireNotNull(script)
-        sha1 = redisConnection.sync().scriptLoad(script)
-    }
-
     suspend fun execute(destination: Destination, message: MessageProtos.Message): Boolean {
         val keys = listOf(
             destination.messageQueueKey,
@@ -37,5 +29,17 @@ class InsertMessageScript(
             keys.toTypedArray(),
             *args.toTypedArray(),
         ) ?: false
+    }
+
+    companion object {
+        fun load(redisConnection: StatefulRedisClusterConnection<ByteArray, ByteArray>): InsertMessageScript {
+            val classLoader = GetMessageScript::class.java.classLoader
+            val script = String(requireNotNull(classLoader.getResourceAsStream("lua/insert_message.lua")).readAllBytes(), Charsets.UTF_8)
+            requireNotNull(script)
+            return InsertMessageScript(
+                redisConnection = redisConnection,
+                sha1 = redisConnection.sync().scriptLoad(script),
+            )
+        }
     }
 }

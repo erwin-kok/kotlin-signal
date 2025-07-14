@@ -23,9 +23,9 @@ class RemoveMessageByGuidScriptTest {
 
         val clusterClient = REDIS_CLUSTER_EXTENSION.clusterClient!!
         clusterClient.connect("test", ByteArrayCodec.INSTANCE).use { connection ->
-            connection.execute {
-                val insertScript = InsertMessageScript(it)
-                val removeScript = RemoveMessageByGuidScript(it)
+            connection.withConnection {
+                val insertScript = InsertMessageScript.load(it)
+                val removeScript = RemoveMessageByGuidScript.load(it)
                 val serverGuid = UUID.randomUUID()
                 val message1 = message {
                     this.serverTimestamp = Instant.now().epochSecond

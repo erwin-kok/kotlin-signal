@@ -46,7 +46,7 @@ class RedisClusterExtension(
             while (!setAll) {
                 try {
                     for (key in keys) {
-                        connection.executeSync {
+                        connection.withSyncConnection {
                             it.sync().set(key, "warmup")
                         }
                     }

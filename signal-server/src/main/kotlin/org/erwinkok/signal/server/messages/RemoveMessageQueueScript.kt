@@ -9,22 +9,10 @@ import io.lettuce.core.cluster.api.coroutines
 import org.erwinkok.entities.MessageProtos
 import java.util.UUID
 
-class RemoveMessageQueueScript(
+class RemoveMessageQueueScript private constructor(
     private val redisConnection: StatefulRedisClusterConnection<ByteArray, ByteArray>,
+    private val sha1: String,
 ) {
-    companion object {
-        private const val PAGE_SIZE = 100
-    }
-
-    private val classLoader = RemoveMessageQueueScript::class.java.classLoader
-    private val sha1: String
-
-    init {
-        val script = String(requireNotNull(classLoader.getResourceAsStream("lua/remove_queue.lua")).readAllBytes(), Charsets.UTF_8)
-        requireNotNull(script)
-        sha1 = redisConnection.sync().scriptLoad(script)
-    }
-
     suspend fun execute(destination: Destination, processedMessageGuids: List<UUID>): List<MessageProtos.Message> {
         val keys = listOf(
             destination.messageQueueKey,
@@ -43,5 +31,19 @@ class RemoveMessageQueueScript(
         ) ?: return emptyList()
 
         return result.map { MessageProtos.Message.parseFrom(it) }
+    }
+
+    companion object {
+        private const val PAGE_SIZE = 100
+
+        fun load(redisConnection: StatefulRedisClusterConnection<ByteArray, ByteArray>): RemoveMessageQueueScript {
+            val classLoader = GetMessageScript::class.java.classLoader
+            val script = String(requireNotNull(classLoader.getResourceAsStream("lua/remove_queue.lua")).readAllBytes(), Charsets.UTF_8)
+            requireNotNull(script)
+            return RemoveMessageQueueScript(
+                redisConnection = redisConnection,
+                sha1 = redisConnection.sync().scriptLoad(script),
+            )
+        }
     }
 }

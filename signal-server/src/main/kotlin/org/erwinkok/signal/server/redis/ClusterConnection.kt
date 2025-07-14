@@ -12,7 +12,7 @@ class ClusterConnection<K, V>(
     private val circuitBreaker: CircuitBreaker,
     private val retry: Retry,
 ) : Closeable {
-    suspend fun <T> execute(action: suspend (StatefulRedisClusterConnection<K, V>) -> T): T {
+    suspend fun <T> withConnection(action: suspend (StatefulRedisClusterConnection<K, V>) -> T): T {
         return circuitBreaker.executeSuspendFunction {
             retry.executeSuspendFunction {
                 action(connection)
@@ -20,7 +20,7 @@ class ClusterConnection<K, V>(
         }
     }
 
-    fun <T> executeSync(action: (StatefulRedisClusterConnection<K, V>) -> T): T {
+    fun <T> withSyncConnection(action: (StatefulRedisClusterConnection<K, V>) -> T): T {
         return circuitBreaker.executeCallable {
             retry.executeCallable {
                 action(connection)

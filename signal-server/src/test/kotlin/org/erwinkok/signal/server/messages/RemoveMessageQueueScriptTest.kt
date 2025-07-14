@@ -23,9 +23,9 @@ class RemoveMessageQueueScriptTest {
 
         val clusterClient = REDIS_CLUSTER_EXTENSION.clusterClient!!
         clusterClient.connect("test", ByteArrayCodec.INSTANCE).use { connection ->
-            connection.execute {
-                val insertScript = InsertMessageScript(it)
-                val removeScript = RemoveMessageQueueScript(it)
+            connection.withConnection {
+                val insertScript = InsertMessageScript.load(it)
+                val removeScript = RemoveMessageQueueScript.load(it)
                 val message1 = message {
                     this.serverTimestamp = Instant.now().epochSecond
                     this.serverGuid = UUID.randomUUID().toString()

@@ -11,18 +11,10 @@ import org.erwinkok.entities.MessageProtos
 
 private val logger = KotlinLogging.logger {}
 
-class GetMessageScript(
+class GetMessageScript private constructor(
     private val redisConnection: StatefulRedisClusterConnection<ByteArray, ByteArray>,
+    private val sha1: String,
 ) {
-    private val classLoader = GetMessageScript::class.java.classLoader
-    private val sha1: String
-
-    init {
-        val script = String(requireNotNull(classLoader.getResourceAsStream("lua/get_messages.lua")).readAllBytes(), Charsets.UTF_8)
-        requireNotNull(script)
-        sha1 = redisConnection.sync().scriptLoad(script)
-    }
-
     suspend fun execute(destination: Destination, limit: Int, afterMessageId: Long): Pair<List<MessageProtos.Message>, Long> {
         val keys = listOf(
             destination.messageQueueKey,
@@ -53,5 +45,17 @@ class GetMessageScript(
             }
         }
         return Pair(messages, lastMessageId)
+    }
+
+    companion object {
+        fun load(redisConnection: StatefulRedisClusterConnection<ByteArray, ByteArray>): GetMessageScript {
+            val classLoader = GetMessageScript::class.java.classLoader
+            val script = String(requireNotNull(classLoader.getResourceAsStream("lua/get_messages.lua")).readAllBytes(), Charsets.UTF_8)
+            requireNotNull(script)
+            return GetMessageScript(
+                redisConnection = redisConnection,
+                sha1 = redisConnection.sync().scriptLoad(script),
+            )
+        }
     }
 }

@@ -26,9 +26,9 @@ class GetMessageScriptTest {
 
         val clusterClient = REDIS_CLUSTER_EXTENSION.clusterClient!!
         clusterClient.connect("test", ByteArrayCodec.INSTANCE).use { connection ->
-            connection.execute {
-                val insertScript = InsertMessageScript(it)
-                val getScript = GetMessageScript(it)
+            connection.withConnection {
+                val insertScript = InsertMessageScript.load(it)
+                val getScript = GetMessageScript.load(it)
 
                 val serverGuid = UUID.randomUUID().toString()
                 val message1 = message {
