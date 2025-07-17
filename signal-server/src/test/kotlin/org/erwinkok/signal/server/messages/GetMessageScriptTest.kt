@@ -6,7 +6,6 @@ import com.google.protobuf.ByteString
 import io.lettuce.core.ExperimentalLettuceCoroutinesApi
 import io.lettuce.core.codec.ByteArrayCodec
 import kotlinx.coroutines.test.runTest
-import org.erwinkok.entities.message
 import org.erwinkok.signal.server.redis.RedisClusterExtension
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test

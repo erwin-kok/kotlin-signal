@@ -4,9 +4,9 @@
  */
 syntax = "proto2";
 
-package textsecure;
+package org.erwinkok.signal;
 
-option java_package = "org.erwinkok.entities";
+option java_package = "org.erwinkok.signal.server.messages";
 option java_outer_classname = "MessageProtos";
 
 message Message {
@@ -33,7 +33,5 @@ message Message {
   optional bool urgent = 14 [default=true];
   optional string updated_pni = 15;
   optional bool story = 16; // indicates that the content is a story.
-  optional bytes report_spam_token = 17; // token sent when reporting spam
-  optional bytes shared_mrm_key = 18; // indicates content should be fetched from multi-recipient message datastore
   // next: 19
 }

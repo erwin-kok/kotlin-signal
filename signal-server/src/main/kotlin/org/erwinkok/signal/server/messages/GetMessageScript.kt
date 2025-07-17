@@ -7,7 +7,6 @@ import io.lettuce.core.ExperimentalLettuceCoroutinesApi
 import io.lettuce.core.ScriptOutputType
 import io.lettuce.core.cluster.api.StatefulRedisClusterConnection
 import io.lettuce.core.cluster.api.coroutines
-import org.erwinkok.entities.MessageProtos
 
 private val logger = KotlinLogging.logger {}
 
@@ -29,8 +28,10 @@ class GetMessageScript private constructor(
             ScriptOutputType.OBJECT,
             keys.toTypedArray(),
             *args.toTypedArray(),
-        ) ?: return Pair(emptyList(), -1)
-
+        )
+        if (result.isNullOrEmpty()) {
+            return Pair(emptyList(), -1)
+        }
         if (result.size % 2 != 0) {
             logger.error { "'Get messages' should return a list with a even number of elements." }
             return Pair(emptyList(), -1)

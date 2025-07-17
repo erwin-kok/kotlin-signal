@@ -7,35 +7,32 @@ import io.lettuce.core.ScriptOutputType
 import io.lettuce.core.cluster.api.StatefulRedisClusterConnection
 import io.lettuce.core.cluster.api.coroutines
 
-class InsertMessageScript private constructor(
+class UnlockQueueScript private constructor(
     private val redisConnection: StatefulRedisClusterConnection<ByteArray, ByteArray>,
     private val sha1: String,
 ) {
-    suspend fun execute(destination: Destination, message: MessageProtos.Message): Boolean {
+    suspend fun execute(destination: Destination) {
         val keys = listOf(
-            destination.messageQueueKey,
-            destination.messageQueueMetadataKey,
-            destination.queueIndexKey,
+            destination.persistInProgressKey,
         )
-        val args = listOf(
-            message.toByteArray(),
-            message.serverTimestamp.toString().toByteArray(Charsets.UTF_8),
-            message.serverGuid.toString().toByteArray(Charsets.UTF_8),
-        )
-        return redisConnection.coroutines().evalsha<Boolean>(
+        redisConnection.coroutines().evalsha<Unit>(
             sha1,
             ScriptOutputType.BOOLEAN,
             keys.toTypedArray(),
-            *args.toTypedArray(),
-        ) ?: false
+            MESSAGES_PERSISTED_EVENT_ARGS,
+        )
     }
 
     companion object {
-        fun load(redisConnection: StatefulRedisClusterConnection<ByteArray, ByteArray>): InsertMessageScript {
-            val classLoader = InsertMessageScript::class.java.classLoader
+        private val MESSAGES_PERSISTED_EVENT_ARGS = clientEvent {
+            messagesPersisted = MessagesPersistedEvent.getDefaultInstance()
+        }.toByteArray()
+
+        fun load(redisConnection: StatefulRedisClusterConnection<ByteArray, ByteArray>): UnlockQueueScript {
+            val classLoader = UnlockQueueScript::class.java.classLoader
             val script = String(requireNotNull(classLoader.getResourceAsStream("lua/insert_message.lua")).readAllBytes(), Charsets.UTF_8)
             requireNotNull(script)
-            return InsertMessageScript(
+            return UnlockQueueScript(
                 redisConnection = redisConnection,
                 sha1 = redisConnection.sync().scriptLoad(script),
             )

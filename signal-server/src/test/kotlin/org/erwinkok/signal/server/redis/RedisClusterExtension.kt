@@ -36,6 +36,14 @@ class RedisClusterExtension(
     }
 
     override fun beforeEach(context: ExtensionContext) {
+        beforeEach()
+    }
+
+    override fun afterEach(context: ExtensionContext) {
+        afterEach()
+    }
+
+    fun beforeEach() {
         redisClientResources = ClientResources.builder().build()
         val client = ClusterClient(redisURIs())
         client.connect("warmup").use { connection ->
@@ -56,11 +64,12 @@ class RedisClusterExtension(
                     Thread.sleep(500)
                 }
             }
+            connection.withSyncConnection { it.sync().flushall() }
         }
         clusterClient = client
     }
 
-    override fun afterEach(context: ExtensionContext) {
+    fun afterEach() {
         clusterClient?.shutdown()
         redisClientResources?.shutdown()?.get()
     }

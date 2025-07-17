@@ -30,6 +30,7 @@ dependencies {
     implementation("com.google.protobuf:protobuf-kotlin:4.31.1")
     implementation("io.github.resilience4j:resilience4j-all:2.3.0")
     implementation("io.github.resilience4j:resilience4j-kotlin:2.3.0")
+    implementation("org.signal:libsignal-server:0.76.3")
 
     testImplementation(libs.io.mockk.mockk)
     testImplementation(libs.junit.jupiter.api)

@@ -6,7 +6,6 @@ import io.lettuce.core.ExperimentalLettuceCoroutinesApi
 import io.lettuce.core.ScriptOutputType
 import io.lettuce.core.cluster.api.StatefulRedisClusterConnection
 import io.lettuce.core.cluster.api.coroutines
-import org.erwinkok.entities.MessageProtos
 import java.util.UUID
 
 class RemoveMessageByGuidScript private constructor(
@@ -32,7 +31,7 @@ class RemoveMessageByGuidScript private constructor(
 
     companion object {
         fun load(redisConnection: StatefulRedisClusterConnection<ByteArray, ByteArray>): RemoveMessageByGuidScript {
-            val classLoader = GetMessageScript::class.java.classLoader
+            val classLoader = RemoveMessageByGuidScript::class.java.classLoader
             val script = String(requireNotNull(classLoader.getResourceAsStream("lua/remove_message_by_guid.lua")).readAllBytes(), Charsets.UTF_8)
             requireNotNull(script)
             return RemoveMessageByGuidScript(
